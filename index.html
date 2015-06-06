@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Beep</title>
+  <style>
+
+    .component{
+      margin: 1em;
+    }
+
+    #tone-pad{
+      width: 500px;
+      height: 500px;
+      border: 1px solid rgba(30, 0, 0, 0.9);
+      display: inline-block;
+      padding: 0em 1em 0em 1em;
+      box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
+      background-color: rgba(230, 255, 230, 0.9);
+      float: left;
+    }
+
+    #tone-type-select{
+      border: 1px solid rgba(0, 30, 0, 0.9);
+      display: inline-block;
+      padding: 0em 1em 0em 1em;
+      box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
+      background-color: rgba(255, 230, 230, 0.9);
+      float: left;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id='tone-pad' class='component'>
+
+  </div>
+
+  <div id='tone-type-select' class='component'>
+    <p>
+      <input type="radio" name="osc-type"  value="sine" checked />sine
+    </p>
+    <p>
+      <input type="radio" name="osc-type"  value="square" />square
+    </p>
+    <p>
+      <input type="radio" name="osc-type"  value="sawtooth"   />saw
+    </p>
+    <p>
+      <input type="radio" name="osc-type"  value="triangle" />tri
+    </p>
+  </div>
+
+  <script>
+
+    var ctx = new (window.AudioContext || window.webkitAudioContext) ();
+    var oscillator = ctx.createOscillator();
+    var gainNode = ctx.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.value = 1000;
+    gainNode.gain.value = 0;
+
+    function updateTone(e){
+      oscillator.frequency.value = e.clientX + 200;
+      gainNode.gain.value = (700 - e.clientY)/700;
+    }
+
+    window.onload = function(){
+
+      document.getElementById('tone-pad').addEventListener('mousemove', updateTone);
+
+      document.getElementById('tone-pad').addEventListener('mouseleave', function(){
+        gainNode.gain.value = 0;
+      })
+
+      document.getElementById('tone-type-select').addEventListener('click', function(){
+        var toneType = document.querySelector('input[type="radio"]:checked').value;
+        oscillator.type = toneType;
+      })
+
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      oscillator.start();
+
+    };
+
+  </script>
+</body>
+</html>
